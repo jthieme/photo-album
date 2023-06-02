@@ -26,13 +26,13 @@ const StyledSearch = styled.div`
 const StyledButton = styled.button`
   margin-left: 2%;
   display: flex;
-  margin-top: 3.5%;
+  margin-top: 2%;
 `;
 
 const StyledSaveButton = styled.button`
   margin-left: 2%;
   display: flex;
-  margin-top: 3.5%;
+  margin-top: 2%;
 `;
 
 const Home = () => {
