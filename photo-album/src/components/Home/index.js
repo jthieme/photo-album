@@ -38,6 +38,7 @@ const StyledSaveButton = styled.button`
 const Home = () => {
   const [searchString, setSearchString] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
+  const [editedData, setEditedData] = useState(data.data.albums);
 
   const filteredAlbums = data.data.albums.filter((card) => {
     const lowerTag = card.tag.toLowerCase();
@@ -45,12 +46,25 @@ const Home = () => {
     // if the search is empty
     if (searchString === "") {
       return true;
-    // if the tag matches the search
+      // if the tag matches the search
     } else if (lowerTag.includes(lowerSearch)) {
       return true;
     }
     return false;
   });
+
+
+  const handleUpdateData = (src, updatedName, updatedTag) => {
+    const updatedData = editedData.map((card) => {
+      if (card.src === src) {
+        return { ...card, name: updatedName, tag: updatedTag };
+      }
+      return card;
+    });
+
+    setEditedData(updatedData);
+    console.log("updatedData", updatedData);
+  };
 
   return (
     <>
@@ -86,19 +100,28 @@ const Home = () => {
           </StyledButton>
           <StyledSaveButton>
             <FontAwesomeIcon
-                icon={faUpload}
-                style={{ paddingRight: "10%", marginTop: "16%" }}
-              />
+              icon={faUpload}
+              style={{ paddingRight: "10%", marginTop: "16%" }}
+            />
             Save
           </StyledSaveButton>
         </StyledSearch>
 
         {filteredAlbums.length > 0 ? (
           filteredAlbums.map((pics) => (
-            <Card pics={pics} key={pics.id} />
+            <Card
+              pics={pics}
+              key={pics.src}
+              editedName={editedData.find((card) => card.src === pics.src)?.name || pics.name}
+            editedTag={editedData.find((card) => card.src === pics.src)?.tag || pics.tag}
+            onNameChange={(updatedName) => handleUpdateData(pics.src, updatedName, pics.tag)}
+            onTagChange={(updatedTag) => handleUpdateData(pics.src, pics.name, updatedTag)}
+            />
           ))
         ) : (
-          <div style={{textAlign: "center"}}>No tags match "{searchString}"</div>
+          <div style={{ textAlign: "center" }}>
+            No tags match "{searchString}"
+          </div>
         )}
       </div>
     </>

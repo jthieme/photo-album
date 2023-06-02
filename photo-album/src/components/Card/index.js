@@ -20,13 +20,11 @@ const StyledContainer = styled.div`
   }
 `;
 
-const Card = ({ pics, key }) => {
+const Card = ({ pics, key, editedName, editedTag, onNameChange, onTagChange }) => {
   const { id, name, src, tag, fav } = pics;
 
   const [isDoubleClicked, setIsDoubleClicked] = useState(false);
   const [isFavorited, setIsFavorited] = useState(fav);
-  const [editedName, setEditedName] = useState(name);
-  const [editedTag, setEditedTag] = useState(tag);
   const [hasClickedEllipsis, setHasClickedEllipsis] = useState(false);
 
   const handleUpdateData = () => {
@@ -45,14 +43,6 @@ const Card = ({ pics, key }) => {
     setIsDoubleClicked(true);
     setIsFavorited(!isFavorited);
     handleUpdateData()
-  };
-
-  const handleNameChange = (e) => {
-    setEditedName(e.target.value);
-  };
-
-  const handleTagChange = (e) => {
-    setEditedTag(e.target.value);
   };
 
   const handleEllipsisClick = () => {
@@ -93,14 +83,14 @@ const Card = ({ pics, key }) => {
               <input
                 type="text"
                 value={editedName}
-                onChange={handleNameChange}
+                onChange={(e) => onNameChange(e.target.value)}
                 className="text-sm"
                 style={{ marginBottom: "-3%", padding: "0", paddingLeft: "1%"}}
               />
               <input
                 type="text"
                 value={editedTag}
-                onChange={handleTagChange}
+                onChange={(e) => onTagChange(e.target.value)}
                 className="text-xs text-blue-700"
                 style={{padding: "0", paddingLeft: "1%"}}
               />
