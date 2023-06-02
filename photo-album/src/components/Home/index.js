@@ -6,13 +6,19 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 
 const StyledSearch = styled.div`
-  width: 30%;
-  margin-left: 40%;
+  width: 54%;
+  margin-left: 24%;
   padding-top: 1%;
 
   @media only screen and (max-width: 600px) {
-    width: 50%;
-    margin-left: 27%;
+    width: 60%;
+    margin-left: 25%;
+    padding-top: 2%;
+  }
+
+  @media only screen and (min-width: 752px) {
+    width: 53%;
+    margin-left: 32%;
     padding-top: 2%;
   }
 `;
@@ -78,13 +84,13 @@ const Home = () => {
             />
             Upload
           </StyledButton>
-          {/* <StyledSaveButton>
+          <StyledSaveButton>
             <FontAwesomeIcon
                 icon={faUpload}
                 style={{ paddingRight: "10%", marginTop: "16%" }}
               />
             Save
-          </StyledSaveButton> */}
+          </StyledSaveButton>
         </StyledSearch>
 
         {filteredAlbums.length > 0 ? (
