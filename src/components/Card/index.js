@@ -7,7 +7,6 @@ import data from "../../data/data";
 const StyledSrc = styled.div`
   border: 1px solid black;
   border-radius: 15px;
-  maxwidth: 30%;
   position: relative;
 `;
 
@@ -101,7 +100,7 @@ const Card = ({ pics, key, editedName, editedTag, onNameChange, onTagChange }) =
                 {editedName}
               </div>
               <div className="text-xs text-blue-700">
-                #{editedTag}
+                {editedTag}
                 {isFavorited && (
                   <span
                     className="text-sm text-red-700"
