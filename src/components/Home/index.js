@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Card from "../Card";
 import data from "../../data/data";
 import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
+import Modal from "../Modal";
+import { getAlbum } from "../../data/db";
 
 const StyledSearch = styled.div`
   width: 54%;
@@ -38,9 +40,22 @@ const StyledSaveButton = styled.button`
 const Home = () => {
   const [searchString, setSearchString] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
-  const [editedData, setEditedData] = useState(data.data.albums);
+  const [data, setData] = useState(null);
+  const [editedData, setEditedData] = useState(data != null ? data : null);
+  const [modal, setModal] = useState(false);
 
-  const filteredAlbums = data.data.albums.filter((card) => {
+  useEffect(() => {
+    const getData = async () => {
+      const response = await getAlbum("http://localhost:4010/card/all")
+      console.log("response", response)
+      setData(response)
+    }
+    getData()
+  }, [])
+
+  console.log("data", data)
+
+  const filteredAlbums = data?.filter((card) => {
     const lowerTag = card.tag.toLowerCase();
     const lowerSearch = searchString.toLowerCase();
     // if the search is empty
@@ -53,7 +68,6 @@ const Home = () => {
     return false;
   });
 
-
   const handleUpdateData = (src, updatedName, updatedTag) => {
     const updatedData = editedData.map((card) => {
       if (card.src === src) {
@@ -64,6 +78,10 @@ const Home = () => {
 
     setEditedData(updatedData);
     console.log("updatedData", updatedData);
+  };
+
+  const handleModal = () => {
+    setModal(!modal);
   };
 
   return (
@@ -78,25 +96,14 @@ const Home = () => {
               onChange={(e) => setSearchString(e.target.value)}
             />
           </div>
-          <input
-            type="file"
-            accept="image/*"
-            id="select-img"
-            style={{ display: "none" }}
-            onChange={(e) => {
-              setSelectedImage(e.target.files[0]);
-              console.log("selectedImage: ", selectedImage);
-            }}
-          />
-          <StyledButton
-            htmlFor="select-img"
-            onClick={() => document.getElementById("select-img")?.click()}
-          >
+
+          <StyledButton onClick={handleModal}>
             <FontAwesomeIcon
               icon={faUpload}
               style={{ paddingRight: "10%", marginTop: "16%" }}
+              
             />
-            Upload
+            <a href="#test">Upload</a>
           </StyledButton>
           <StyledSaveButton>
             <FontAwesomeIcon
@@ -107,15 +114,25 @@ const Home = () => {
           </StyledSaveButton>
         </StyledSearch>
 
-        {filteredAlbums.length > 0 ? (
+        {modal && <Modal />}
+        
+        {filteredAlbums?.length > 0 ? (
           filteredAlbums.map((pics) => (
             <Card
               pics={pics}
               key={pics.src}
-              editedName={editedData.find((card) => card.src === pics.src)?.name || pics.name}
-            editedTag={editedData.find((card) => card.src === pics.src)?.tag || pics.tag}
-            onNameChange={(updatedName) => handleUpdateData(pics.src, updatedName, pics.tag)}
-            onTagChange={(updatedTag) => handleUpdateData(pics.src, pics.name, updatedTag)}
+              editedName={
+                editedData?.find((card) => card.src === pics.src)?.name || pics.name
+              }
+              editedTag={
+                editedData?.find((card) => card.src === pics.src)?.tag || pics.tag
+              }
+              onNameChange={(updatedName) =>
+                handleUpdateData(pics.src, updatedName, pics.tag)
+              }
+              onTagChange={(updatedTag) =>
+                handleUpdateData(pics.src, pics.name, updatedTag)
+              }
             />
           ))
         ) : (
