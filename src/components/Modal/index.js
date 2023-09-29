@@ -1,6 +1,7 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
 import { addCard } from "../../data/db";
+import { BASE_URL } from "../../data/constants";
+import { v4 as uuidv4 } from 'uuid';
 
 const Modal = () => {
   document.addEventListener("keyup", function (e) {
@@ -18,8 +19,24 @@ const Modal = () => {
   const [fav, setFav] = useState(false);
   const [newPhotoInfo, setNewPhotoInfo] = useState({});
 
+  useEffect(() => {
+    const add = async () => {
+      await addNewPhoto();
+    }
+    add()
+  }, [newPhotoInfo])
+
   const handleImageChange = (e) => {
     const file = e.target.files[0]; // Get the first selected file
+
+    // new Compressor(image, {
+    //   quality: 0.8, // 0.6 can also be used, but its not recommended to go below.
+    //   success: (compressedResult) => {
+    //     // compressedResult has the compressed file.
+    //     // Use the compressed file to upload the images to your server.        
+    //     setCompressedFile(res)
+    //   },
+    // });
 
     if (file) {
       const reader = new FileReader();
@@ -33,36 +50,41 @@ const Modal = () => {
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const photo = {
       src: selectedImage,
       name: name,
       tag: tag,
       fav: fav,
+      uuid: uuidv4()
     };
     setNewPhotoInfo((prev) => ({
       ...prev,
       ...photo,
     }));
-    addNewCard();
   };
 
-  const addNewCard = async () => {
-    if (newPhotoInfo != {}) {
-      // post to API
-      // const headers = {
-      //   "Content-Type": "application/json",
-      // };
-      // await axios
-      //   .post("http://localhost:4010/card/add", newPhotoInfo, { headers })
-      //   .then(function (response) {
-      //     console.log(response);
-      //   });
-      await addCard("http://localhost:4010/card/add", newPhotoInfo)
+  const addNewPhoto = async () => {
+    console.log("newPhotoInfo", newPhotoInfo)
+
+    if (Object.keys(newPhotoInfo).length > 0) {
+      try {
+        
+        const response = await addCard(`${BASE_URL}/card/add`, newPhotoInfo)
+        if (response.ok) {
+          // Card added successfully, you can update the UI here
+          console.log("Card added successfully");
+        } else {
+          // Handle the error response
+          console.error("Error adding card:", response.status, response.statusText);
+        }
+      } catch (error) {
+        console.error("An error occurred:", error);
+      }
     } else {
       console.log("newPhotoInfo", newPhotoInfo);
     }
-  };
+  }
 
   return (
     <div className="modal" id="test">
