@@ -5,36 +5,69 @@ import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import Modal from "../Modal";
-import { getAlbum } from "../../data/db";
+import { deleteCard, getAlbum } from "../../data/db";
+import { BASE_URL } from "../../data/constants";
 
 const StyledSearch = styled.div`
-  width: 54%;
-  margin-left: 24%;
+  /* width: 54%; */
+  align-items: center;
+  justify-content: center;
   padding-top: 1%;
 
   @media only screen and (max-width: 600px) {
     width: 60%;
-    margin-left: 25%;
+    align-items: center;
+    justify-content: center;
     padding-top: 2%;
   }
 
   @media only screen and (min-width: 752px) {
     width: 53%;
-    margin-left: 32%;
+    align-items: center;
+    justify-content: center;
     padding-top: 2%;
   }
 `;
 
-const StyledButton = styled.button`
-  margin-left: 2%;
+const StyledTopBar = styled.div`
+  background-color: #e1e1e1;
   display: flex;
-  margin-top: 2%;
+  align-items: center;
+  padding: 20px;
 `;
 
-const StyledSaveButton = styled.button`
-  margin-left: 2%;
+const StyledButton = styled.button`
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
   display: flex;
-  margin-top: 2%;
+  align-items: center;
+  justify-content: center;
+  color: #333;
+  font-weight: bold;
+
+  &:hover {
+    color: #007bff; /* Change to your desired hover color */
+  }
+
+  &.btn {
+    margin-bottom: 0;
+  }
+`;
+
+const ButtonContainer = styled.div`
+  display: flex;
+  align-items: center;
+  margin-left: 10px;
+  top: 0;
+  .button-icon {
+    margin-right: 5px;
+  }
+`;
+
+const SearchBoxContainer = styled.div`
+  flex: 1;
+  margin-right: 10px;
 `;
 
 const Home = () => {
@@ -46,14 +79,12 @@ const Home = () => {
 
   useEffect(() => {
     const getData = async () => {
-      const response = await getAlbum("http://localhost:4010/card/all")
-      console.log("response", response)
-      setData(response)
-    }
-    getData()
-  }, [])
-
-  console.log("data", data)
+      const response = await getAlbum(`${BASE_URL}/card/all`);
+      console.log("response", response);
+      setData(response);
+    };
+    getData();
+  }, []);
 
   const filteredAlbums = data?.filter((card) => {
     const lowerTag = card.tag.toLowerCase();
@@ -86,46 +117,46 @@ const Home = () => {
 
   return (
     <>
-      <div style={{ backgroundColor: "#e1e1e1" }}>
-        <StyledSearch className="row level">
-          <div className="col-xs-9 level-item">
-            <input
-              type="search"
-              placeholder="Search by #"
-              value={searchString}
-              onChange={(e) => setSearchString(e.target.value)}
-            />
-          </div>
+      <StyledTopBar>
+        <SearchBoxContainer>
+          <input
+            type="search"
+            placeholder="Search by #"
+            value={searchString}
+            onChange={(e) => setSearchString(e.target.value)}
+          />
+        </SearchBoxContainer>
 
-          <StyledButton onClick={handleModal}>
-            <FontAwesomeIcon
-              icon={faUpload}
-              style={{ paddingRight: "10%", marginTop: "16%" }}
-              
-            />
+        <ButtonContainer>
+          <StyledButton onClick={handleModal} className="btn btn-secondary btn-sm">
+            <FontAwesomeIcon icon={faUpload} />
             <a href="#test">Upload</a>
           </StyledButton>
-          <StyledSaveButton>
-            <FontAwesomeIcon
-              icon={faUpload}
-              style={{ paddingRight: "10%", marginTop: "16%" }}
-            />
-            Save
-          </StyledSaveButton>
-        </StyledSearch>
+        </ButtonContainer>
 
-        {modal && <Modal />}
-        
+        <ButtonContainer>
+          <StyledButton  className="btn btn-secondary btn-sm">
+            <FontAwesomeIcon icon={faUpload} />
+            <span>Save</span>
+          </StyledButton>
+        </ButtonContainer>
+      </StyledTopBar>
+
+      <div style={{ backgroundColor: "#e1e1e1" }}>
+        {modal && <Modal BASE_URL={BASE_URL} />}
+
         {filteredAlbums?.length > 0 ? (
           filteredAlbums.map((pics) => (
             <Card
               pics={pics}
               key={pics.src}
               editedName={
-                editedData?.find((card) => card.src === pics.src)?.name || pics.name
+                editedData?.find((card) => card.src === pics.src)?.name ||
+                pics.name
               }
               editedTag={
-                editedData?.find((card) => card.src === pics.src)?.tag || pics.tag
+                editedData?.find((card) => card.src === pics.src)?.tag ||
+                pics.tag
               }
               onNameChange={(updatedName) =>
                 handleUpdateData(pics.src, updatedName, pics.tag)
@@ -136,7 +167,13 @@ const Home = () => {
             />
           ))
         ) : (
-          <div style={{ textAlign: "center" }}>
+          <div
+            style={{
+              textAlign: "center",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
             No tags match "{searchString}"
           </div>
         )}
