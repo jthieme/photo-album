@@ -3,6 +3,9 @@ import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEllipsis, faHeart } from "@fortawesome/free-solid-svg-icons";
 import data from "../../data/data";
+import { BASE_URL } from "../../data/constants";
+import { deleteCard } from "../../data/db";
+
 
 const StyledSrc = styled.div`
   border: 1px solid black;
@@ -20,7 +23,7 @@ const StyledContainer = styled.div`
 `;
 
 const Card = ({ pics, key, editedName, editedTag, onNameChange, onTagChange }) => {
-  const { id, name, src, tag, fav } = pics;
+  const { id, name, src, tag, fav, uuid } = pics;
 
   const [isDoubleClicked, setIsDoubleClicked] = useState(false);
   const [isFavorited, setIsFavorited] = useState(fav);
@@ -47,6 +50,11 @@ const Card = ({ pics, key, editedName, editedTag, onNameChange, onTagChange }) =
   const handleEllipsisClick = () => {
     setHasClickedEllipsis(!hasClickedEllipsis);
     handleUpdateData();
+  }
+
+  const handleDelete = async (card) => {
+    const response = await deleteCard(`${BASE_URL}/card/deleteId`, card);
+    console.log(response);
   }
 
   return (
@@ -78,7 +86,7 @@ const Card = ({ pics, key, editedName, editedTag, onNameChange, onTagChange }) =
           />
 
           {hasClickedEllipsis ? (
-            <div style={{ padding: "1%" }}>
+            <div style={{ padding: "1%",  width: "81%"}}>
               <input
                 type="text"
                 value={editedName}
@@ -93,6 +101,10 @@ const Card = ({ pics, key, editedName, editedTag, onNameChange, onTagChange }) =
                 className="text-xs text-blue-700"
                 style={{padding: "0", paddingLeft: "1%"}}
               />
+              <button
+                className="btn--sm"
+                onClick={() => handleDelete(id)}
+              >Delete</button>
             </div>
           ) : (
             <div style={{ padding: "2%" }}>
