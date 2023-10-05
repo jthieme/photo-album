@@ -53,6 +53,7 @@ const Card = ({ pics, key, editedName, editedTag, onNameChange, onTagChange }) =
   }
 
   const handleDelete = async (card) => {
+    console.log("uuid", card);
     const response = await deleteCard(`${BASE_URL}/card/deleteId`, card);
     console.log(response);
   }
@@ -103,7 +104,7 @@ const Card = ({ pics, key, editedName, editedTag, onNameChange, onTagChange }) =
               />
               <button
                 className="btn--sm"
-                onClick={() => handleDelete(id)}
+                onClick={() => handleDelete(name)}
               >Delete</button>
             </div>
           ) : (
