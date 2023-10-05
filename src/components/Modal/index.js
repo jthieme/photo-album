@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { addCard } from "../../data/db";
 import { BASE_URL } from "../../data/constants";
-import { v4 as uuidv4 } from 'uuid';
+import { v4 as uuidv4 } from "uuid";
+import Input from "./Input";
+import Compressor from 'compressorjs';
 
 const Modal = () => {
   document.addEventListener("keyup", function (e) {
@@ -18,45 +20,46 @@ const Modal = () => {
   const [tag, setTag] = useState();
   const [fav, setFav] = useState(false);
   const [newPhotoInfo, setNewPhotoInfo] = useState({});
+  const [compressedFile, setCompressedFile] = useState(null);
 
   useEffect(() => {
     const add = async () => {
       await addNewPhoto();
-    }
-    add()
-  }, [newPhotoInfo])
+    };
+    add();
+  }, [newPhotoInfo]);
 
   const handleImageChange = (e) => {
     const file = e.target.files[0]; // Get the first selected file
-
-    // new Compressor(image, {
-    //   quality: 0.8, // 0.6 can also be used, but its not recommended to go below.
-    //   success: (compressedResult) => {
-    //     // compressedResult has the compressed file.
-    //     // Use the compressed file to upload the images to your server.        
-    //     setCompressedFile(res)
-    //   },
-    // });
-
-    if (file) {
-      const reader = new FileReader();
-
-      reader.onload = (event) => {
-        // event.target.result contains the data URL of the selected image
-        setSelectedImage(event.target.result);
-      };
-
-      reader.readAsDataURL(file); // Read the selected file as a data URL
-    }
+    console.log("file", file);
+  
+    new Compressor(file, {
+      quality: 0.6,
+      success: (compressedResult) => {
+        // This code block will be executed after the compression is done.
+        console.log("compressedFile", compressedResult);
+        setCompressedFile(compressedResult);
+        
+        // read the newly compressed file
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          setSelectedImage(event.target.result);
+        };
+        reader.readAsDataURL(compressedResult);
+      },
+      error(err) {
+        console.log(err.message);
+      },
+    });
   };
-
+  
   const handleSubmit = async () => {
     const photo = {
       src: selectedImage,
       name: name,
       tag: tag,
       fav: fav,
-      uuid: uuidv4()
+      uuid: uuidv4(),
     };
     setNewPhotoInfo((prev) => ({
       ...prev,
@@ -65,18 +68,21 @@ const Modal = () => {
   };
 
   const addNewPhoto = async () => {
-    console.log("newPhotoInfo", newPhotoInfo)
+    console.log("newPhotoInfo", newPhotoInfo);
 
     if (Object.keys(newPhotoInfo).length > 0) {
       try {
-        
-        const response = await addCard(`${BASE_URL}/card/add`, newPhotoInfo)
+        const response = await addCard(`${BASE_URL}/card/add`, newPhotoInfo);
         if (response.ok) {
           // Card added successfully, you can update the UI here
           console.log("Card added successfully");
         } else {
           // Handle the error response
-          console.error("Error adding card:", response.status, response.statusText);
+          console.error(
+            "Error adding card:",
+            response.status,
+            response.statusText
+          );
         }
       } catch (error) {
         console.error("An error occurred:", error);
@@ -84,7 +90,7 @@ const Modal = () => {
     } else {
       console.log("newPhotoInfo", newPhotoInfo);
     }
-  }
+  };
 
   return (
     <div className="modal" id="test">
@@ -124,43 +130,18 @@ const Modal = () => {
           </div>
           <div className="space"></div>
           <input type="file" accept="image/*" onChange={handleImageChange} />
-          <div
-            className="tile tile--center py-1 px-2 my-1"
-            style={{
-              boxShadow:
-                "rgba(0, 0, 0, 0.06) 0px 3px 6px, rgba(0, 0, 0, 0.03) 0px 3px 6px",
-            }}
-          >
-            <div className="tile__container">
-              <label>Name</label>
-              <input onChange={(e) => setName(e.target.value)} />
-            </div>
-          </div>
-          <div
-            className="tile tile--center py-1 px-2 my-1"
-            style={{
-              boxShadow:
-                "rgba(0, 0, 0, 0.06) 0px 3px 6px, rgba(0, 0, 0, 0.03) 0px 3px 6px",
-            }}
-          >
-            <div className="tile__container">
-              <label>Tag</label>
-              <input onChange={(e) => setTag(`#${e.target.value}`)} />
-            </div>
-          </div>
-          <div
-            className="tile tile--center py-1 px-2 my-1"
-            style={{
-              boxShadow:
-                "rgba(0, 0, 0, 0.06) 0px 3px 6px, rgba(0, 0, 0, 0.03) 0px 3px 6px",
-            }}
-          >
-            <div className="tile__container">
-              <label>Favorite</label>
-              <input type="checkbox" onClick={() => setFav(!fav)} />
-            </div>
-          </div>
+
+          <Input
+            label={"Name"}
+            eventFunction={(e) => setName(e.target.value)}
+          />
+          <Input
+            label={"Tag"}
+            eventFunction={(e) => setTag(`#${e.target.value}`)}
+          />
+          <Input label={"Favorite"} eventFunction={() => setFav(!fav)} />
         </div>
+
         <div className="modal-footer">
           <div className="form-section u-text-right">
             <a href="#components">
