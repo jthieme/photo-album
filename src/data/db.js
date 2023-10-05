@@ -13,7 +13,7 @@ export const getAlbum = async (endpoint) => {
 
 export const addCard = async (endpoint, data) => {
   const headers = {
-    "Content-Type": "application/json",
+    "Content-Type": "application/json"
   };
   try {
     const response = await axios.post(endpoint, data, { headers });
