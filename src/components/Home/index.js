@@ -5,29 +5,8 @@ import styled from "styled-components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUpload } from "@fortawesome/free-solid-svg-icons";
 import Modal from "../Modal";
-import { deleteCard, getAlbum } from "../../data/db";
+import { getAlbum } from "../../data/db";
 import { BASE_URL } from "../../data/constants";
-
-const StyledSearch = styled.div`
-  /* width: 54%; */
-  align-items: center;
-  justify-content: center;
-  padding-top: 1%;
-
-  @media only screen and (max-width: 600px) {
-    width: 60%;
-    align-items: center;
-    justify-content: center;
-    padding-top: 2%;
-  }
-
-  @media only screen and (min-width: 752px) {
-    width: 53%;
-    align-items: center;
-    justify-content: center;
-    padding-top: 2%;
-  }
-`;
 
 const StyledTopBar = styled.div`
   background-color: #e1e1e1;
@@ -78,13 +57,23 @@ const Home = () => {
   const [modal, setModal] = useState(false);
 
   useEffect(() => {
+    let isMounted = true;
+  
     const getData = async () => {
       const response = await getAlbum(`${BASE_URL}/card/all`);
       console.log("response", response);
-      setData(response);
+      if (isMounted) {
+        setData(response);
+      }
     };
+  
     getData();
+  
+    return () => {
+      isMounted = false;
+    };
   }, []);
+  
 
   const filteredAlbums = data?.filter((card) => {
     const lowerTag = card.tag.toLowerCase();
@@ -100,7 +89,7 @@ const Home = () => {
   });
 
   const handleUpdateData = (src, updatedName, updatedTag) => {
-    const updatedData = editedData.map((card) => {
+    const updatedData = data.map((card) => {
       if (card.src === src) {
         return { ...card, name: updatedName, tag: updatedTag };
       }
@@ -151,11 +140,11 @@ const Home = () => {
               pics={pics}
               key={pics.src}
               editedName={
-                editedData?.find((card) => card.src === pics.src)?.name ||
+                data?.find((card) => card.src === pics.src)?.name ||
                 pics.name
               }
               editedTag={
-                editedData?.find((card) => card.src === pics.src)?.tag ||
+                data?.find((card) => card.src === pics.src)?.tag ||
                 pics.tag
               }
               onNameChange={(updatedName) =>
